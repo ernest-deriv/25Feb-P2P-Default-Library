@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function P2PHeader() {
   return (
-    <div className="flex items-center justify-between h-14 px-4 -mx-6 border-b">
+    <div className="flex items-center justify-between h-16 px-4 -mx-6 sm:-mx-8 sm:px-4 border-b">
       <div className="flex items-center gap-2">
         <Link to="/" className="hover:opacity-80">
           <ChevronLeft className="w-6 h-6" />

@@ -211,11 +211,14 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row w-full items-start sm:items-center sm:justify-between gap-4">
-              <div className="text-sm text-gray-600">
+            <div className="flex flex-row items-center justify-between gap-4 w-full">
+              <div className="text-sm text-black">
                 {trader.methods.join(", ")}
               </div>
-              <Button className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white">
+              <Button
+                variant="ghost"
+                className="w-24 bg-red-500 hover:bg-red-500/90 text-white text-sm"
+              >
                 {mode === "buy" ? "Buy" : "Sell"} {trader.currency}
               </Button>
             </div>
