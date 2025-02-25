@@ -166,7 +166,7 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
         {filteredTraders.map((trader) => (
           <div
             key={trader.id}
-            className="flex flex-col sm:grid sm:grid-cols-[2fr_1fr_1fr_2fr] items-start sm:items-center py-4 border-b gap-4 sm:gap-0"
+            className="flex flex-col sm:grid sm:grid-cols-[2fr_1fr_1fr_2fr] items-start sm:items-center py-4 gap-4 sm:gap-0 border border-[#DEE2E6] sm:border-0 sm:border-b rounded-lg sm:rounded-none mb-4 sm:mb-0 px-4 sm:px-0"
           >
             <div className="flex items-center gap-3">
               <div className="relative">
