@@ -3,121 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Clock } from "lucide-react";
 import EmptyState from "./EmptyState";
 
-interface Trader {
-  id: string;
-  name: string;
-  avatar: string;
-  rating: number;
-  orders: number;
-  completion: number;
-  following?: boolean;
-  online?: boolean;
-  rate: number;
-  limits: string;
-  time: string;
-  methods: string[];
-  currency: string;
-}
-
-const traders: Trader[] = [
-  {
-    id: "1",
-    name: "Mariana Rueda",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=1",
-    rating: 4.3,
-    orders: 43,
-    completion: 98,
-    following: true,
-    online: true,
-    rate: 14500.0,
-    limits: "USD 10.00 - 100.00",
-    time: "15 min",
-    methods: ["Bank transfer", "Neteller", "PayPal"],
-    currency: "USD",
-  },
-  {
-    id: "2",
-    name: "Pavitra Yoganathan",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=2",
-    rating: 4.0,
-    orders: 3,
-    completion: 43,
-    rate: 14600.0,
-    limits: "USD 10.00 - 100.00",
-    time: "15 min",
-    methods: ["Bank transfer", "Neteller", "PayPal"],
-    currency: "USD",
-  },
-  {
-    id: "3",
-    name: "Farid",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=3",
-    rating: 0.0,
-    orders: 0,
-    completion: 0,
-    following: true,
-    online: true,
-    rate: 12500.0,
-    limits: "USD 10.00 - 100.00",
-    time: "15 min",
-    methods: ["Bank transfer", "Neteller"],
-    currency: "USD",
-  },
-  {
-    id: "4",
-    name: "Lipika Sethi",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=4",
-    rating: 3.2,
-    orders: 40,
-    completion: 94,
-    rate: 11354.0,
-    limits: "EUR 10.00 - 100.00",
-    time: "15 min",
-    methods: ["Bank transfer", "PayPal"],
-    currency: "EUR",
-  },
-  {
-    id: "5",
-    name: "Riddhi Deven",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=5",
-    rating: 4.1,
-    orders: 65,
-    completion: 89,
-    rate: 16444.0,
-    limits: "IDR 10.00 - 100.00",
-    time: "15 min",
-    methods: ["Bank transfer"],
-    currency: "IDR",
-  },
-  {
-    id: "6",
-    name: "Reeja Vasu",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=6",
-    rating: 3.9,
-    orders: 34,
-    completion: 87,
-    following: true,
-    online: false,
-    rate: 15322.0,
-    limits: "USD 10.00 - 100.00",
-    time: "15 min",
-    methods: ["Neteller", "PayPal"],
-    currency: "USD",
-  },
-  {
-    id: "7",
-    name: "Ameerul Hady",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=7",
-    rating: 2.8,
-    orders: 54,
-    completion: 99,
-    rate: 12444.0,
-    limits: "EUR 10.00 - 100.00",
-    time: "15 min",
-    methods: ["Bank transfer", "PayPal"],
-    currency: "EUR",
-  },
-];
+import { tradersApi, type Trader } from "@/services/api";
+import { mockTraders } from "@/lib/mock-data";
+import { useEffect, useState } from "react";
 
 interface P2PTradeListProps {
   mode: "buy" | "sell";
@@ -131,7 +19,53 @@ interface P2PTradeListProps {
 }
 
 export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
+  const [traders, setTraders] = useState<Trader[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTraders = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await tradersApi.getTraders(filters);
+        setTraders(data);
+      } catch (error) {
+        console.error("Error fetching traders:", error);
+        setError("Failed to load traders. Using fallback data.");
+        setTraders(mockTraders); // Fallback to mock data
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTraders();
+  }, [filters]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 space-y-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-coral"></div>
+        <p className="text-sm text-gray-500">Loading traders...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-4">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   let filteredTraders = traders.filter((trader) => {
+    // Filter by mode (buy/sell)
+    if (trader.type !== mode) {
+      return false;
+    }
     if (
       filters.currency &&
       filters.currency !== "all" &&
@@ -139,12 +73,27 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
     ) {
       return false;
     }
-    if (
-      filters.paymentMethod &&
-      filters.paymentMethod !== "all" &&
-      !trader.methods.includes(filters.paymentMethod)
-    ) {
-      return false;
+    if (filters.paymentMethod && filters.paymentMethod !== "all") {
+      const methodLower = filters.paymentMethod.toLowerCase();
+      const traderMethods = trader.methods.map((m) => m.toLowerCase());
+
+      if (methodLower === "bank") {
+        // Check for any bank-related methods
+        const hasBankMethod = traderMethods.some(
+          (m) => m.includes("bank") || m.includes("transfer"),
+        );
+        if (!hasBankMethod) return false;
+      } else if (methodLower === "other") {
+        // Check for methods that are not bank-related
+        const hasOtherMethod = traderMethods.some(
+          (m) => !m.includes("bank") && !m.includes("transfer"),
+        );
+        if (!hasOtherMethod) return false;
+      } else {
+        // Direct match for specific methods
+        const hasMethod = traderMethods.some((m) => m === methodLower);
+        if (!hasMethod) return false;
+      }
     }
     if (
       filters.nickname &&
@@ -243,13 +192,13 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
 
             <div className="flex flex-row items-center justify-between gap-4 w-full">
               <div className="text-sm text-black">
-                {trader.methods.join(", ")}
+                {trader.methods?.join(", ") || "No payment methods"}
               </div>
               <Button
                 variant="ghost"
                 className="w-24 bg-coral hover:bg-coral/90 text-white text-sm"
               >
-                {mode === "buy" ? "Buy" : "Sell"} {trader.currency}
+                {trader.type === "buy" ? "Buy" : "Sell"} {trader.currency}
               </Button>
             </div>
           </div>

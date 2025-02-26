@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useFilterOptions } from "@/hooks/use-filter-options";
 
 interface P2PTradeFiltersProps {
   mode: "buy" | "sell";
@@ -24,6 +25,8 @@ export default function P2PTradeFilters({
   onModeChange,
   onFilterChange,
 }: P2PTradeFiltersProps) {
+  const { currencies, paymentMethods } = useFilterOptions();
+
   return (
     <div className="py-4 space-y-4">
       <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
@@ -50,9 +53,11 @@ export default function P2PTradeFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Currencies</SelectItem>
-              <SelectItem value="USD">USD</SelectItem>
-              <SelectItem value="EUR">EUR</SelectItem>
-              <SelectItem value="IDR">IDR</SelectItem>
+              {currencies.map((currency) => (
+                <SelectItem key={currency} value={currency}>
+                  {currency}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
@@ -63,10 +68,11 @@ export default function P2PTradeFilters({
               <SelectValue placeholder="Payment (All)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Payment (All)</SelectItem>
-              <SelectItem value="Bank transfer">Bank Transfer</SelectItem>
-              <SelectItem value="PayPal">PayPal</SelectItem>
-              <SelectItem value="Neteller">Neteller</SelectItem>
+              {paymentMethods.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
