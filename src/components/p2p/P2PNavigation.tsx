@@ -24,7 +24,7 @@ export default function P2PNavigation() {
             <TabsTrigger
               key={item.path}
               value={item.path}
-              className="py-4 px-3 sm:px-6 text-base sm:text-xl data-[state=active]:border-b-2 data-[state=active]:border-red-500 data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-none text-gray-400 hover:text-gray-900"
+              className="py-4 px-3 sm:px-6 text-base sm:text-xl data-[state=active]:border-b-2 data-[state=active]:border-coral data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:shadow-none rounded-none text-gray-400 hover:text-gray-900"
             >
               {item.name}
             </TabsTrigger>

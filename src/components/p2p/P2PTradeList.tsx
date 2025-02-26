@@ -11,6 +11,7 @@ interface Trader {
   orders: number;
   completion: number;
   following?: boolean;
+  online?: boolean;
   rate: number;
   limits: string;
   time: string;
@@ -27,6 +28,7 @@ const traders: Trader[] = [
     orders: 43,
     completion: 98,
     following: true,
+    online: true,
     rate: 14500.0,
     limits: "USD 10.00 - 100.00",
     time: "15 min",
@@ -54,6 +56,7 @@ const traders: Trader[] = [
     orders: 0,
     completion: 0,
     following: true,
+    online: true,
     rate: 12500.0,
     limits: "USD 10.00 - 100.00",
     time: "15 min",
@@ -94,6 +97,7 @@ const traders: Trader[] = [
     orders: 34,
     completion: 87,
     following: true,
+    online: false,
     rate: 15322.0,
     limits: "USD 10.00 - 100.00",
     time: "15 min",
@@ -121,11 +125,13 @@ interface P2PTradeListProps {
     currency?: string;
     paymentMethod?: string;
     nickname?: string;
+    status?: string;
+    sortBy?: string;
   };
 }
 
 export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
-  const filteredTraders = traders.filter((trader) => {
+  let filteredTraders = traders.filter((trader) => {
     if (
       filters.currency &&
       filters.currency !== "all" &&
@@ -146,15 +152,37 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
     ) {
       return false;
     }
+    if (filters.status === "following" && !trader.following) {
+      return false;
+    }
+    if (filters.status === "online" && !trader.online) {
+      return false;
+    }
     return true;
   });
+
+  // Sort traders based on selected criteria
+  if (filters.sortBy) {
+    filteredTraders.sort((a, b) => {
+      switch (filters.sortBy) {
+        case "rate":
+          return b.rate - a.rate;
+        case "completion":
+          return b.completion - a.completion;
+        case "orders":
+          return b.orders - a.orders;
+        default:
+          return 0;
+      }
+    });
+  }
 
   if (filteredTraders.length === 0) {
     return <EmptyState />;
   }
 
   return (
-    <div>
+    <div className="pb-16 sm:pb-0">
       <div className="hidden sm:grid sm:grid-cols-[2fr_1fr_1fr_2fr] py-4 text-sm text-black border-b">
         <div className="font-semibold">Advertisers</div>
         <div className="font-semibold pl-4">Rates</div>
@@ -173,7 +201,9 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
                 <Avatar className="bg-black text-white w-10 h-10 flex items-center justify-center">
                   {trader.name[0]}
                 </Avatar>
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                {trader.online && (
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                )}
               </div>
 
               <div>
@@ -217,7 +247,7 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
               </div>
               <Button
                 variant="ghost"
-                className="w-24 bg-red-500 hover:bg-red-500/90 text-white text-sm"
+                className="w-24 bg-coral hover:bg-coral/90 text-white text-sm"
               >
                 {mode === "buy" ? "Buy" : "Sell"} {trader.currency}
               </Button>

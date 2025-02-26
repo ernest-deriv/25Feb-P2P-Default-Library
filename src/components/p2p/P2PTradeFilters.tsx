@@ -14,6 +14,8 @@ interface P2PTradeFiltersProps {
     currency?: string;
     paymentMethod?: string;
     nickname?: string;
+    status?: string;
+    sortBy?: string;
   }) => void;
 }
 
@@ -43,7 +45,7 @@ export default function P2PTradeFilters({
           <Select
             onValueChange={(value) => onFilterChange({ currency: value })}
           >
-            <SelectTrigger className="w-[100px] bg-white ml-6 shadow-none">
+            <SelectTrigger className="bg-white ml-6 shadow-none px-2 w-[120px] gap-x-2">
               <SelectValue placeholder="Currency" />
             </SelectTrigger>
             <SelectContent>
@@ -57,8 +59,8 @@ export default function P2PTradeFilters({
           <Select
             onValueChange={(value) => onFilterChange({ paymentMethod: value })}
           >
-            <SelectTrigger className="w-[180px] bg-white shadow-none">
-              <SelectValue placeholder="Payment method" />
+            <SelectTrigger className="w-[160px] bg-white shadow-none">
+              <SelectValue placeholder="Payment (All)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Payment (All)</SelectItem>
@@ -70,12 +72,12 @@ export default function P2PTradeFilters({
 
           <Input
             placeholder="Enter nickname"
-            className="w-[200px] bg-white shadow-none"
+            className="w-[160px] bg-white shadow-none"
             onChange={(e) => onFilterChange({ nickname: e.target.value })}
           />
 
-          <Select>
-            <SelectTrigger className="w-[200px] bg-white shadow-none">
+          <Select onValueChange={(value) => onFilterChange({ sortBy: value })}>
+            <SelectTrigger className="w-[160px] bg-white shadow-none">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -87,7 +89,7 @@ export default function P2PTradeFilters({
             </SelectContent>
           </Select>
 
-          <Select>
+          <Select onValueChange={(value) => onFilterChange({ status: value })}>
             <SelectTrigger className="w-[120px] bg-white shadow-none">
               <SelectValue placeholder="Filter" />
             </SelectTrigger>

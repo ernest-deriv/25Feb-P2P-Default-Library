@@ -10,13 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Filter } from "lucide-react";
 
@@ -28,14 +22,16 @@ export default function P2PTrading() {
     currency: undefined,
     paymentMethod: undefined,
     nickname: undefined,
+    status: undefined,
+    sortBy: undefined,
   });
   return (
-    <div className="min-h-screen bg-white px-6 sm:px-8">
-      <div>
-        <div className="pb-4 sm:pb-8">
-          <P2PHeader />
-        </div>
-        <div>
+    <div className="min-h-screen bg-white pb-20 sm:pb-11 relative">
+      <div className="-mx-6 sm:-mx-8 lg:-mx-32 px-6">
+        <P2PHeader className="mx-6 px-4" />
+      </div>
+      <div className="px-6 sm:px-8 lg:px-32">
+        <div className="pt-4">
           <div className="hidden sm:flex items-center border-b justify-between h-16 pt-[1.75px]">
             <P2PNavigation className="h-14" />
             <P2PBalance className="h-16" />
@@ -88,8 +84,8 @@ export default function P2PTrading() {
                 </SelectContent>
               </Select>
 
-              <Dialog>
-                <DialogTrigger asChild>
+              <Sheet>
+                <SheetTrigger asChild>
                   <button className="h-10 border border-[#DEE2E6] rounded-lg flex items-center justify-center w-full">
                     <svg
                       width="16"
@@ -114,37 +110,38 @@ export default function P2PTrading() {
                       />
                     </svg>
                   </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Search by nickname</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex items-center space-x-2">
-                    <div className="grid flex-1 gap-2">
-                      <Input
-                        placeholder="Enter nickname"
-                        value={filters.nickname || ""}
-                        onChange={(e) =>
-                          setFilters({ ...filters, nickname: e.target.value })
-                        }
-                      />
-                    </div>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[240px]">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">
+                      Search by nickname
+                    </h3>
+                    <Input
+                      placeholder="Enter nickname"
+                      value={filters.nickname || ""}
+                      onChange={(e) =>
+                        setFilters({ ...filters, nickname: e.target.value })
+                      }
+                    />
                   </div>
-                </DialogContent>
-              </Dialog>
+                </SheetContent>
+              </Sheet>
 
-              <Dialog>
-                <DialogTrigger asChild>
+              <Sheet>
+                <SheetTrigger asChild>
                   <button className="h-10 border border-[#DEE2E6] rounded-lg flex items-center justify-center w-full">
                     <Filter className="w-4 h-4" />
                   </button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Sort and Filter</DialogTitle>
-                  </DialogHeader>
-                  <div className="grid gap-4">
-                    <Select>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[320px]">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Sort and Filter</h3>
+                    <Select
+                      value={filters.sortBy}
+                      onValueChange={(value) =>
+                        setFilters({ ...filters, sortBy: value })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
@@ -160,7 +157,12 @@ export default function P2PTrading() {
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                    <Select>
+                    <Select
+                      value={filters.status}
+                      onValueChange={(value) =>
+                        setFilters({ ...filters, status: value })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Filter by" />
                       </SelectTrigger>
@@ -171,15 +173,15 @@ export default function P2PTrading() {
                       </SelectContent>
                     </Select>
                   </div>
-                </DialogContent>
-              </Dialog>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
           <P2PTradeList mode={mode} filters={filters} />
-          <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t py-3">
+          <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t py-3 z-[100] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
             <div className="flex justify-around items-center max-w-md mx-auto">
               <button className="flex items-center gap-1 flex-col-reverse">
-                <div className="flex items-center gap-1 text-red-500 flex-col">
+                <div className="flex items-center gap-1 text-coral flex-col">
                   <svg
                     width="16"
                     height="16"
@@ -228,7 +230,9 @@ export default function P2PTrading() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="text-sm text-[#85898E]">Orders</span>
+                <span className="text-sm text-[#85898E] font-light">
+                  Orders
+                </span>
               </button>
               <button className="flex flex-col items-center gap-1">
                 <svg
@@ -267,7 +271,9 @@ export default function P2PTrading() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="text-sm text-[#85898E]">My ads</span>
+                <span className="text-sm text-[#85898E] font-light">
+                  My ads
+                </span>
               </button>
               <button className="flex flex-col items-center gap-1">
                 <svg
@@ -292,7 +298,9 @@ export default function P2PTrading() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="text-sm text-[#85898E]">Profile</span>
+                <span className="text-sm text-[#85898E] font-light">
+                  Profile
+                </span>
               </button>
             </div>
           </div>
