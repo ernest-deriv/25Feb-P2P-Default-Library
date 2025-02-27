@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Clock } from "lucide-react";
 import EmptyState from "./EmptyState";
 
-import { tradersApi, type Trader } from "@/services/api";
-import { mockTraders } from "@/lib/mock-data";
+import { advertsApi, type Advert } from "@/services/api";
+import { mockAdverts } from "@/lib/mock-data";
 import { useEffect, useState } from "react";
 
 interface P2PTradeListProps {
@@ -19,34 +19,34 @@ interface P2PTradeListProps {
 }
 
 export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
-  const [traders, setTraders] = useState<Trader[]>([]);
+  const [adverts, setAdverts] = useState<Advert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchTraders = async () => {
+    const fetchAdverts = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await tradersApi.getTraders(filters);
-        setTraders(data);
+        const data = await advertsApi.getAdverts(filters);
+        setAdverts(data);
       } catch (error) {
-        console.error("Error fetching traders:", error);
-        setError("Failed to load traders. Using fallback data.");
-        setTraders(mockTraders); // Fallback to mock data
+        console.error("Error fetching adverts:", error);
+        setError("Failed to load adverts. Using fallback data.");
+        setAdverts(mockAdverts); // Fallback to mock data
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTraders();
+    fetchAdverts();
   }, [filters]);
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 space-y-4">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-coral"></div>
-        <p className="text-sm text-gray-500">Loading traders...</p>
+        <p className="text-sm text-gray-500">Loading adverts...</p>
       </div>
     );
   }
@@ -61,58 +61,58 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
     );
   }
 
-  let filteredTraders = traders.filter((trader) => {
+  let filteredAdverts = adverts.filter((advert) => {
     // Filter by mode (buy/sell)
-    if (trader.type !== mode) {
+    if (advert.type !== mode) {
       return false;
     }
     if (
       filters.currency &&
       filters.currency !== "all" &&
-      trader.currency !== filters.currency
+      advert.currency !== filters.currency
     ) {
       return false;
     }
     if (filters.paymentMethod && filters.paymentMethod !== "all") {
       const methodLower = filters.paymentMethod.toLowerCase();
-      const traderMethods = trader.methods.map((m) => m.toLowerCase());
+      const advertMethods = advert.methods.map((m) => m.toLowerCase());
 
       if (methodLower === "bank") {
         // Check for any bank-related methods
-        const hasBankMethod = traderMethods.some(
+        const hasBankMethod = advertMethods.some(
           (m) => m.includes("bank") || m.includes("transfer"),
         );
         if (!hasBankMethod) return false;
       } else if (methodLower === "other") {
         // Check for methods that are not bank-related
-        const hasOtherMethod = traderMethods.some(
+        const hasOtherMethod = advertMethods.some(
           (m) => !m.includes("bank") && !m.includes("transfer"),
         );
         if (!hasOtherMethod) return false;
       } else {
         // Direct match for specific methods
-        const hasMethod = traderMethods.some((m) => m === methodLower);
+        const hasMethod = advertMethods.some((m) => m === methodLower);
         if (!hasMethod) return false;
       }
     }
     if (
       filters.nickname &&
-      !trader.name.toLowerCase().includes(filters.nickname.toLowerCase())
+      !advert.name.toLowerCase().includes(filters.nickname.toLowerCase())
     ) {
       return false;
     }
-    if (filters.status === "following" && !trader.following) {
+    if (filters.status === "following" && !advert.following) {
       return false;
     }
-    if (filters.status === "online" && !trader.online) {
+    if (filters.status === "online" && !advert.online) {
       return false;
     }
     return true;
   });
 
   // Sort traders based on selected criteria
-  if (filters.sortBy) {
-    filteredTraders.sort((a, b) => {
+  if (filters.sortBy && filters.sortBy !== "all") {
+    filteredAdverts.sort((a, b) => {
       switch (filters.sortBy) {
         case "rate":
           return b.rate - a.rate;
@@ -126,12 +126,12 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
     });
   }
 
-  if (filteredTraders.length === 0) {
+  if (filteredAdverts.length === 0) {
     return <EmptyState />;
   }
 
   return (
-    <div className="pb-16 sm:pb-0">
+    <div className="pb-24 sm:pb-0">
       <div className="hidden sm:grid sm:grid-cols-[2fr_1fr_1fr_2fr] py-4 text-sm text-black border-b">
         <div className="font-semibold">Advertisers</div>
         <div className="font-semibold pl-4">Rates</div>
@@ -140,25 +140,25 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
       </div>
 
       <div className="space-y-4">
-        {filteredTraders.map((trader) => (
+        {filteredAdverts.map((advert) => (
           <div
-            key={trader.id}
+            key={advert.id}
             className="flex flex-col sm:grid sm:grid-cols-[2fr_1fr_1fr_2fr] items-start sm:items-center py-4 gap-4 sm:gap-0 border border-[#DEE2E6] sm:border-0 sm:border-b rounded-lg sm:rounded-none mb-4 sm:mb-0 px-4 sm:px-0"
           >
             <div className="flex items-center gap-3">
               <div className="relative">
                 <Avatar className="bg-black text-white w-10 h-10 flex items-center justify-center">
-                  {trader.name[0]}
+                  {advert.name[0]}
                 </Avatar>
-                {trader.online && (
+                {advert.online && (
                   <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                 )}
               </div>
 
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="font-medium">{trader.name}</span>
-                  {trader.following && (
+                  <span className="font-medium">{advert.name}</span>
+                  {advert.following && (
                     <span className="text-xs text-green-600 border border-green-600 rounded px-2">
                       Following
                     </span>
@@ -166,39 +166,39 @@ export default function P2PTradeList({ mode, filters }: P2PTradeListProps) {
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <span>⭐ {trader.rating}</span>
-                  <span>• {trader.orders} orders</span>
-                  <span>• {trader.completion}% completion</span>
+                  <span>⭐ {advert.rating}</span>
+                  <span>• {advert.orders} orders</span>
+                  <span>• {advert.completion}% completion</span>
                 </div>
               </div>
             </div>
 
             <div className="pl-4">
               <span className="font-semibold">
-                {trader.currency}{" "}
-                {trader.rate.toLocaleString("en-US", {
+                {advert.currency}{" "}
+                {advert.rate.toLocaleString("en-US", {
                   minimumFractionDigits: 4,
                 })}
               </span>
             </div>
 
             <div className="space-y-1">
-              <div>{trader.limits}</div>
+              <div>{advert.limits}</div>
               <div className="flex items-center gap-1 text-sm text-gray-500">
                 <Clock className="w-4 h-4" />
-                <span>{trader.time}</span>
+                <span>{advert.time}</span>
               </div>
             </div>
 
             <div className="flex flex-row items-center justify-between gap-4 w-full">
               <div className="text-sm text-black">
-                {trader.methods?.join(", ") || "No payment methods"}
+                {advert.methods?.join(", ") || "No payment methods"}
               </div>
               <Button
                 variant="ghost"
                 className="w-24 bg-coral hover:bg-coral/90 text-white text-sm"
               >
-                {trader.type === "buy" ? "Buy" : "Sell"} {trader.currency}
+                {advert.type === "buy" ? "Buy" : "Sell"} {advert.currency}
               </Button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-export const mockTraders = [
+export const mockAdverts = [
   {
     id: "1",
     type: "buy",

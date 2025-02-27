@@ -54,7 +54,7 @@ export default function P2PBalance({
     <div>
       <div className="flex sm:flex-col sm:items-end justify-between items-center">
         <div>
-          <div className="flex items-center gap-1">
+          <div className="flex gap-1 justify-start sm:justify-end items-center">
             <span className="text-sm text-gray-600">P2P balance</span>
             {isDesktop ? (
               <Dialog open={open} onOpenChange={setOpen}>
@@ -78,7 +78,7 @@ export default function P2PBalance({
                 <SheetTrigger>
                   <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600" />
                 </SheetTrigger>
-                <SheetContent side="bottom" className="h-[480px]">
+                <SheetContent side="bottom" className="h-[480px] z-[99999]">
                   <HelpContent />
                   <SheetFooter className="mt-4">
                     <Button

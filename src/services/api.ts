@@ -1,6 +1,6 @@
-import { mockTraders } from "@/lib/mock-data";
+import { mockAdverts } from "@/lib/mock-data";
 
-export interface APITrader {
+export interface APIAdvert {
   id: number;
   user: {
     nickname: string;
@@ -24,7 +24,7 @@ export interface APITrader {
   type: string;
 }
 
-export interface Trader {
+export interface Advert {
   id: string;
   name: string;
   avatar: string;
@@ -43,7 +43,7 @@ export interface Trader {
   type: "buy" | "sell";
 }
 
-export interface TraderFilters {
+export interface AdvertFilters {
   currency?: string;
   paymentMethod?: string;
   nickname?: string;
@@ -55,8 +55,8 @@ const BASE_URL = "https://x6pr-kqwm-lfqn.n7d.xano.io/api:iD2pm9AZ:development";
 const AUTH_TOKEN =
   "eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiemlwIjoiREVGIn0.z6oVRfqY4z3dnr78avC1mMnJCCSPxa6EdUqWMLK1ejjptbKi4Ax-m5ceatnOLTdT3CACjGAXyeRZKk1Sa-ObPP-vsltPifx4.-XX5i1-7VKhLIfSlT9joTg.8NJUj93HGOHlc5o2V9BRmX0i60lRqAYf6pTMZvJjbP3d7LxVsZK_kdUWNy7mUmAQ7fJgw05IQA0kKaKWcaHW6EEd4UfxwVSWRSN8F7mwGJSRsMNIz0_6-Vh3axc5j_zzA15wOsWitnXKnnQUvYSn-A.5ooG4D1mUNgoPgVcf0GvTLd09nepqFCrSgR3cHZkuEk";
 
-export const tradersApi = {
-  getTraders: async (filters: TraderFilters): Promise<Trader[]> => {
+export const advertsApi = {
+  getAdverts: async (filters: AdvertFilters): Promise<Advert[]> => {
     try {
       const response = await fetch(`${BASE_URL}/adverts`, {
         headers: {
@@ -65,18 +65,17 @@ export const tradersApi = {
         },
       });
 
-      if (!response.ok) throw new Error("Failed to fetch traders");
+      if (!response.ok) throw new Error("Failed to fetch adverts");
       const apiData = await response.json();
-      console.log("API Response:", apiData); // Log the full response to see its structure
+      console.log("API Response:", apiData);
 
-      // If no data, return mock data
       if (!apiData || !apiData.data || !Array.isArray(apiData.data)) {
         console.log("Invalid API response format, using mock data");
-        return mockTraders;
+        return mockAdverts;
       }
 
-      // Transform API data to match our Trader interface
-      return apiData.data.map((advert: APITrader) => ({
+      // Transform API data to match our Advert interface
+      return apiData.data.map((advert: APIAdvert) => ({
         id: String(advert.id),
         name: advert.user?.nickname || "Unknown User",
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${advert.id}`,
@@ -95,39 +94,45 @@ export const tradersApi = {
         type: advert.type as "buy" | "sell",
       }));
     } catch (error) {
-      console.error("Error fetching traders:", error);
-      return mockTraders; // Fallback to mock data
+      console.error("Error fetching adverts:", error);
+      return mockAdverts; // Fallback to mock data
     }
   },
 
-  followTrader: async (traderId: string): Promise<void> => {
+  followAdvertiser: async (advertiserId: string): Promise<void> => {
     if (!BASE_URL) return;
 
     try {
-      const response = await fetch(`${BASE_URL}/traders/${traderId}/follow`, {
-        method: "POST",
-      });
-      if (!response.ok) throw new Error("Failed to follow trader");
+      const response = await fetch(
+        `${BASE_URL}/advertisers/${advertiserId}/follow`,
+        {
+          method: "POST",
+        },
+      );
+      if (!response.ok) throw new Error("Failed to follow advertiser");
     } catch (error) {
-      console.error("Error following trader:", error);
+      console.error("Error following advertiser:", error);
     }
   },
 
-  unfollowTrader: async (traderId: string): Promise<void> => {
+  unfollowAdvertiser: async (advertiserId: string): Promise<void> => {
     if (!BASE_URL) return;
 
     try {
-      const response = await fetch(`${BASE_URL}/traders/${traderId}/unfollow`, {
-        method: "POST",
-      });
-      if (!response.ok) throw new Error("Failed to unfollow trader");
+      const response = await fetch(
+        `${BASE_URL}/advertisers/${advertiserId}/unfollow`,
+        {
+          method: "POST",
+        },
+      );
+      if (!response.ok) throw new Error("Failed to unfollow advertiser");
     } catch (error) {
-      console.error("Error unfollowing trader:", error);
+      console.error("Error unfollowing advertiser:", error);
     }
   },
 
   initiateTransaction: async (
-    traderId: string,
+    advertId: string,
     type: "buy" | "sell",
     amount: number,
   ): Promise<{ transactionId: string }> => {
@@ -142,7 +147,7 @@ export const tradersApi = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          traderId,
+          advertId,
           type,
           amount,
         }),

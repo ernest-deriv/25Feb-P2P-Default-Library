@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { tradersApi, type Trader } from "@/services/api";
+import { advertsApi, type Advert } from "@/services/api";
 
 interface FilterOptions {
   currencies: string[];
@@ -23,17 +23,17 @@ export function useFilterOptions() {
   useEffect(() => {
     const loadOptions = async () => {
       try {
-        const traders = await tradersApi.getTraders({});
+        const adverts = await advertsApi.getAdverts({});
 
         // Extract unique currencies
         const uniqueCurrencies = Array.from(
-          new Set(traders.map((t) => t.currency)),
+          new Set(adverts.map((a) => a.currency)),
         ).sort();
 
         // Extract unique payment methods
         const uniqueMethods = new Set<string>();
-        traders.forEach((trader) => {
-          trader.methods.forEach((method) => uniqueMethods.add(method));
+        adverts.forEach((advert) => {
+          advert.methods.forEach((method) => uniqueMethods.add(method));
         });
 
         // Update options
